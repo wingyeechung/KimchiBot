@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 
@@ -14,6 +15,8 @@ namespace KimchiBot
 
         static async Task MainAsync(string[] args)
         {
+            args.ToList().ForEach(Console.WriteLine);
+
             discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = "NzIzOTIyOTcwNDc2ODA2MjQ0.Xu4r_w.VExP8zqCDFAXsp2RxYrJfiekxZY",
