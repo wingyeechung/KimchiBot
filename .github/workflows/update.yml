@@ -1,0 +1,27 @@
+name: Update Kimchi
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: self-hosted
+
+    steps:
+      - name: Pull repo + submodules
+        uses: actions/checkout@v1
+        with:
+          submodule: 'recursive'
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+      - name: Build with dotnet
+        run: |
+          dotnet restore 
+          dotnet build --configuration Release -o deploy
+      - name: Restart Kimchi
+        run: sudo systemctl restart Kimchi.service
