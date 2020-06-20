@@ -33,6 +33,12 @@ namespace KimchiBot
                     await e.Message.RespondAsync("get outta here!! ಠ_ಠ");
             };
 
+            discord.MessageCreated += async e =>
+            {
+                if (e.Message.Content.ToLower().StartsWith("pls yes"))
+                    await e.Message.RespondAsync("Daily Menu\n```Noodles\nCookies```");
+            };
+
             await discord.ConnectAsync();
             await Task.Delay(-1);
         }
