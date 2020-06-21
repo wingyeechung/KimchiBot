@@ -218,8 +218,10 @@ namespace KimchiBot
                 await ctx.RespondAsync($"You do not have a bankaccount. Type `yes` to open one");
                 var response = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromMinutes(1));
                 if (response.Message.Content.ToLower() == "yes")
+                {
                     AddUser(ctx);
                     await ctx.RespondAsync($"Thank You for joining Kimchi Bank `{ctx.User.Username}`");
+                }
                 else
                 {
                     await ctx.RespondAsync($"ಠ_ಠ Your loss `{ctx.User.Username}`");
