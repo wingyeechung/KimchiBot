@@ -1,10 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
-
+using Newtonsoft.Json;
 
 namespace KimchiBot
 {
@@ -18,8 +19,11 @@ namespace KimchiBot
         /// </summary>
         /// <param name="args">arguments</param>
         static void Main(string[] args)
-        {
-            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
+		{
+			AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) => SaveJSON();
+			AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) => SaveJSON();
+
+			MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         static async Task MainAsync(string[] args)
@@ -54,6 +58,7 @@ namespace KimchiBot
                 if (e.Message.Content.ToLower().StartsWith("yes plis"))
                     await e.Message.RespondAsync("Daily Menu\n```\nNoodles\nCookies```");
             };
+
             //command using prefix "pls"
             commands = discord.UseCommandsNext(new CommandsNextConfiguration
             {
@@ -65,5 +70,10 @@ namespace KimchiBot
             await Task.Delay(-1);
 
         }
+
+        public static void SaveJSON()
+		{
+			File.WriteAllText("userData.json", JsonConvert.SerializeObject(MyCommands.UserDict, Formatting.Indented));
+		}
     }
 }

@@ -9,6 +9,6 @@ namespace KimchiBot
         public string Name { get; set; }
         public int Balance { get; set; }
 
-        public string Food { get; set; }
+        public List<string> Food { get; } = new List<string>();
     }
 }
