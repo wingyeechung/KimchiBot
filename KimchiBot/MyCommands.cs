@@ -23,7 +23,7 @@ namespace KimchiBot
             await ctx.RespondAsync($"Hi, {ctx.User.Mention}!");
 
             var interactivity = ctx.Client.GetInteractivityModule();
-            var msg = await interactivity.WaitForMessageAsync(xm => 
+            var msg = await interactivity.WaitForMessageAsync(xm =>
             xm.Author.Id == ctx.User.Id && xm.Content.ToLower() == "how are you?", TimeSpan.FromMinutes(1));
             if (msg != null)
                 await ctx.RespondAsync($"I'm fine, thank you!");
@@ -101,27 +101,37 @@ namespace KimchiBot
         }
 
         //Bank System Command
-        Dictionary<string, UserData> userDictionary = JsonConvert.DeserializeObject<Dictionary<string, UserData>>(File.ReadAllText("userData.json"));
+   
         [Command("bank")]
         public async Task BankSystem(CommandContext ctx)
         {
-            await ctx.RespondAsync($"Welcome to Kimchi Bank! {ctx.User.Username} ＼（＾○＾）人（＾○＾）／\n`deposite money`\n`check balance`");
+            Dictionary<string, UserData> userDictionary = new Dictionary<string, UserData>();
+            if (File.Exists("userData.json"))
+            {
+                userDictionary = JsonConvert.DeserializeObject<Dictionary<string, UserData>>(File.ReadAllText("userData.json"));
+            }
+
+            //Dictionary<string, UserData> userDictionary = JsonConvert.DeserializeObject<Dictionary<string, UserData>>(File.ReadAllText("userData.json"));
+            await ctx.RespondAsync($"Welcome to Kimchi Bank! {ctx.User.Username} ＼（＾○＾）人（＾○＾）／\n");
             var interactivity = ctx.Client.GetInteractivityModule();
-            var msg = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromMinutes(1));
+            //var msg = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromMinutes(1));
             
             //Checks if userID exists in json file, if not it creates a bankaccount for user with userid as key
             if (userDictionary.ContainsKey(ctx.User.Id.ToString()))
             {
-                await ctx.RespondAsync($"Please -type- your choice\n`deposite money`\n`check balance`");
+                await ctx.RespondAsync($"Please `-type-` your choice\n`dep` to deposit money\n`bal` to check balance");
                 var response = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromMinutes(1));
-                if (response.Message.Content.ToLower() == "deposite money")
+                //deposit money
+                if (response.Message.Content.ToLower() == "dep")
                 {
                     await ctx.RespondAsync($"Please enter amount");
                     var dep = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromMinutes(1));
                     userDictionary[ctx.User.Id.ToString()].Balance += Int32.Parse(dep.Message.Content);
-                    await ctx.RespondAsync($"{userDictionary[ctx.User.Id.ToString()].Balance}");
+                    await ctx.RespondAsync($"{Int32.Parse(dep.Message.Content)} coins deposited");
+                    File.WriteAllText("userData.json", JsonConvert.SerializeObject(userDictionary));
                 }
-                else if (response.Message.Content.ToLower() == "check balance")
+                //checks balance
+                else if (response.Message.Content.ToLower() == "bal")
                 {
                     await ctx.RespondAsync($"Your balance is {userDictionary[ctx.User.Id.ToString()].Balance}"); // balance check
                 }   
@@ -131,25 +141,30 @@ namespace KimchiBot
                 await ctx.RespondAsync($"You do not have a bankaccount. Type `yes` to open one");
                 var response = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromMinutes(1));
                 if (response.Message.Content.ToLower() == "yes")
-                    AddUser(ctx);
-
+                    AddUser(ctx, userDictionary);
+                    await ctx.RespondAsync($"Thank You for joining Kimchi Bank `{ctx.User.Username}`");
             }
 
             //Adds user to json file
-            static void AddUser(CommandContext ctx)
+            static void AddUser(CommandContext ctx, Dictionary<string, UserData> userDictionary)
             {
 
-                var user = new Dictionary<string, UserData>()
+/*                var user = new Dictionary<string, UserData>()
                 {
                     {ctx.User.Id.ToString(), new UserData {Name = ctx.User.Username.ToString(), Balance = 0, Food = ""}},
-                };
+                };*/
+                userDictionary.Add(ctx.User.Id.ToString(), new UserData { Name = ctx.User.Username.ToString(), Balance = 0, Food = "" });
+                /*File.WriteAllText("userData.json", JsonConvert.SerializeObject(user));*/
+                File.WriteAllText("userData.json", JsonConvert.SerializeObject(userDictionary));
 
-                File.WriteAllText("userData.json", JsonConvert.SerializeObject(user));
-                using (StreamWriter w = File.CreateText("userData.json"))
+                /*using (StreamWriter w = File.AppendText("userData.json"))
                 {
                     JsonSerializer serializer = new JsonSerializer();
                     serializer.Serialize(w, user);
-                }
+                    w.Close();
+                }*/
+
+                //{"476690044271460352":{"Name":"Wings","Balance":42342,"Food":""}}
             }
         }
     }
