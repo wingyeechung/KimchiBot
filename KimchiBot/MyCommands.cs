@@ -195,9 +195,17 @@ namespace KimchiBot
                 {
                     await ctx.RespondAsync($"Please enter amount");
                     var dep = await interactivity.WaitForMessageAsync(xm => xm.Author.Id == ctx.User.Id, TimeSpan.FromMinutes(1));
-                    unchecked { UserDict[ctx.User.Id.ToString()].Balance += Int32.Parse(dep.Message.Content); }
-                    await ctx.RespondAsync($"{Int32.Parse(dep.Message.Content)} coins deposited");
-                    File.WriteAllText("userData.json", JsonConvert.SerializeObject(UserDict));
+                    if(Int32.Parse(dep.Message.Content) > 0)
+                    {
+                        unchecked { UserDict[ctx.User.Id.ToString()].Balance += Int32.Parse(dep.Message.Content); }
+                        await ctx.RespondAsync($"{Int32.Parse(dep.Message.Content)} coins deposited");
+                        File.WriteAllText("userData.json", JsonConvert.SerializeObject(UserDict));
+                    }
+                    else
+                    {
+                        await ctx.RespondAsync($"Invalid Amount");
+                    }
+
                 }
                 //checks balance
                 else if (response.Message.Content.ToLower() == "bal")
